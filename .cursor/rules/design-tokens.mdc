@@ -8,6 +8,13 @@ alwaysApply: false
 
 所有样式必须使用设计系统 CSS 变量，禁止硬编码颜色、间距等值。
 
+## 高还原约束
+
+- 优先使用语义 token（Text/Container/Border），避免直接依赖原语色板
+- 同一页面的字号、间距、圆角、阴影必须来自同一组 token 体系
+- 优先通过组件 variant/size/color 控制样式，避免在页面层覆盖组件内部视觉
+- 若需临时样式，先使用 shadcn 语义类，再考虑 token 自定义值
+
 ## 颜色
 
 使用语义化 token，不要直接引用原语色板：
@@ -87,3 +94,9 @@ className="shadow-[var(--shadow-basic)]"             // 基础阴影
 ## 主题类
 
 可在根元素组合使用：`theme-radius-medium`, `theme-spacing-normal`, `theme-shadow-basic`, `theme-brand`
+
+## 禁止项
+
+- 禁止 `#xxxxxx` / `rgb()` / `hsl()` 颜色硬编码
+- 禁止大面积使用 `text-gray-*` / `bg-gray-*` 这类原始灰阶色
+- 禁止在同一页面混用多套风格 token（如 brand + 自定义随机色）

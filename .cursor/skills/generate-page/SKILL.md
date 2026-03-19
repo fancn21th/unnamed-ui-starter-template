@@ -2,96 +2,112 @@
 name: generate-page
 description: >-
   基于项目组件库和设计系统生成页面。当用户要求创建页面、实现界面、开发功能模块、
-  根据需求文档生成 UI，或提到"生成页面""创建页面""实现界面""做一个页面"时使用此技能。
+  根据需求文档/PRD/设计稿生成 UI，或提到"生成页面""创建页面""实现界面""做一个页面"时使用此技能。
 ---
 
 # 基于组件库生成页面
 
-## 工作流程
+## 目标
 
-### Step 1: 需求分析
+在最少返工下，生成「高还原 + 高一致性」的页面代码：结构先对齐，组件再对齐，样式最后对齐。
 
-从用户输入（对话描述或需求文档）中提取：
+## 需求不明确时
 
-- **页面类型**: 对话页、列表页、表单页、仪表盘、详情页等
-- **核心功能**: 需要哪些交互能力
-- **布局结构**: 单栏、双栏、三栏、侧边栏+内容等
-- **数据展示**: 需要展示什么数据、什么格式
+若用户描述模糊，先输出以下澄清问题（可简写）：
 
-### Step 2: 组件选型
+1. 页面主要做什么？（对话/管理/表单/展示）
+2. 布局是几栏？（单栏/双栏/三栏）
+3. 有无侧边栏或弹层？
+4. 需要哪些核心操作？（创建/编辑/删除/筛选/导出）
 
-根据需求从组件库中选择合适的组件。先查阅 [component-reference.md](component-reference.md) 获取详细的组件 API。
+## 强制流程（不可跳步）
 
-**选型优先级**: wuhan composed > wuhan blocks > shadcn ui > 自定义样式
+### Step 1: 拆解需求
 
-#### 常见页面模式 → 推荐组件
+先输出 4 项结论（可简写）：
 
-| 页面模式 | 推荐组件组合 |
-|----------|------------|
-| AI 对话页 | PageHeader + TripleSplitPane + MessageList + ComposedSender + Welcome + Prompt |
-| AI Agent 页 | PageHeader + AgentCard + TaskList + GoalCard + ExecutionResult |
-| 数据源管理 | Sidebar + FileCard/DocumentCard + Upload + DynamicForm |
-| 设置/表单页 | PageHeader + BlockInput + BlockSelect + Checkbox + Radio + DynamicForm |
-| 仪表盘 | PageHeader + ReportCard + Progress + StatusTag + Tabs |
-| 历史记录 | Sidebar + HistoryItem + MessageList |
+- 页面类型（工作台/表单/详情/列表/仪表盘）
+- 布局结构（单栏/双栏/三栏）
+- 主任务流（用户从哪进入，到哪结束）
+- 状态集合（normal/loading/empty/error）
 
-### Step 3: 页面骨架搭建
+### Step 2: 先蓝图后编码
+
+查阅 [component-reference.md](component-reference.md)，按顺序执行。需要具体代码参考时，见 [examples.md](examples.md)。
+
+1. 确定布局骨架（PageHeader / Sidebar / TripleSplitPane）
+2. 确定业务组件（消息、卡片、表单、上传、报告等）
+3. 查阅各组件 API 与最佳实践
+4. 确认设计 token（text/container/border/spacing）
+
+### Step 3: 组件选型优先级
+
+`wuhan composed > wuhan blocks > shadcn ui > 自定义容器样式`
+
+禁止从零手写按钮/输入框/选择器/弹层等基础控件。
+
+### Step 4: 页面实现顺序
+
+1. 骨架层：PageHeader / Sidebar / TripleSplitPane
+2. 内容层：消息、卡片、表单、上传、报告等业务组件
+3. 行为层：事件处理、状态切换、边界态
+4. 视觉层：token 和语义类微调（不破坏组件原始视觉）
+
+### Step 5: 生成后审查
+
+按下方质量闸门清单逐项检查。
+
+## 最小页面模板
 
 ```tsx
 "use client";
 
 import * as React from "react";
-// 1. 先导入 composed 组件
-// 2. 再导入需要的 blocks
-// 3. 最后导入 shadcn ui
-// 4. 工具函数
+import { PageHeader } from "@/components/wuhan/composed/page-header";
 import { cn } from "@/lib/utils";
 
-// 定义 Props 类型
-interface MyPageProps {
-  // ...
-}
-
-export function MyPage({ ...props }: MyPageProps) {
-  // 状态管理
-  // 事件处理
+export function MyPage() {
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[var(--Page-bg-page)]">
-      {/* 页面内容 */}
+    <div className={cn("h-full flex flex-col overflow-hidden", "bg-[var(--Container-bg-neutral-light)]")}>
+      <PageHeader title="页面标题" />
+      <main className="flex-1 overflow-auto p-4">
+        {/* 内容区 */}
+      </main>
     </div>
   );
 }
 ```
 
-### Step 4: 样式约束
+## 输出代码约束
 
-1. **颜色**: 只用语义化 CSS 变量（`var(--Text-text-primary)` 等），或 shadcn 别名（`bg-primary`）
-2. **间距**: 用设计 token（`var(--Gap-gap-md)`）或 Tailwind 类（`gap-4`）
-3. **圆角/阴影**: 用 `var(--radius-md)`, `var(--shadow-basic)` 等
-4. **响应式**: 使用 Tailwind 断点（`sm:`, `md:`, `lg:`）
-5. **暗色模式**: 组件已内置支持，页面级用 `dark:` 前缀
+- 文件放在 `src/pages/`；文件名使用 kebab-case（如 `chat-page.tsx`）
+- 使用 `@/` 别名导入
+- 图标仅用 `lucide-react`
+- 样式优先语义 token 与组件变体
+- 类型完整，避免 `any`
 
-### Step 5: 交互逻辑
+## 质量闸门（必须通过）
 
-- 表单: react-hook-form + zod schema
-- 状态: React.useState / useReducer，复杂状态可提取自定义 hook
-- 图标: 仅使用 lucide-react
+- [ ] 至少使用 3 个 composed 组件
+- [ ] 不包含 `@mui/*`、`antd`、`chakra-ui` 等外部 UI 库
+- [ ] 不包含硬编码颜色（`#hex`, `rgb`, `hsl`）
+- [ ] 有 `loading` 与 `empty/error` 状态
+- [ ] 布局结构与设计稿一致（栏位与滚动边界一致）
 
-## 质量检查清单
+## 常见出错点（避免）
 
-生成页面后自查：
+- **ComposedSender**：必须同时传 `value` + `onChange` + `onSend`，否则无法发送
+- **TripleSplitPane**：`left`/`right` 需 `children`，`center` 需 `minWidth`，否则布局错乱
+- **背景色**：页面根用 `bg-[var(--Container-bg-neutral-light)]` 或 `bg-[var(--Page-bg-page)]`
+- **antd**：部分 composed 内部已用 antd（如 Markdown 的 Skeleton），页面层勿直接 `import antd`
 
-- [ ] 所有 UI 元素都来自组件库，没有从零手写
-- [ ] 颜色使用语义化 token，无硬编码色值
-- [ ] 间距使用设计系统 token 或 Tailwind 标准类
-- [ ] 组件导入路径正确（`@/components/wuhan/composed/*` 或 `@/components/ui/*`）
-- [ ] TypeScript 类型完整，无 any
-- [ ] 有合理的加载态和空状态处理
+## 常见页面模式
 
-## 注意事项
-
-- **不要安装新的 UI 库**（如 Material UI、Ant Design 的 UI 组件等），项目已有完整组件体系
-- **不要自行创建基础组件**（如 Button、Input），使用已有的
-- **新页面文件放在 `src/pages/` 目录**（如不存在则创建）
-- **共享逻辑提取到 `src/hooks/`**
-- **类型定义放在 `src/types/`**
+| 页面模式 | 推荐组件组合 |
+|----------|------------|
+| AI 对话页 | PageHeader + TripleSplitPane + MessageList + ComposedSender + Prompt |
+| AI Agent 页 | PageHeader + AgentCard + TaskList + GoalCard + ExecutionResult |
+| 数据源管理 | Sidebar + FileCard/DocumentCard + Upload + DynamicForm |
+| 设置/表单页 | PageHeader + BlockInput + BlockSelect + Checkbox + Radio + DynamicForm |
+| 仪表盘 | PageHeader + ReportCard + Progress + StatusTag + Tabs |
+| 历史记录 | Sidebar + HistoryItem + MessageList |

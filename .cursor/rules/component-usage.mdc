@@ -10,6 +10,22 @@ alwaysApply: false
 
 **禁止从零手写 UI 元素**。所有页面必须基于已有组件库构建。
 
+页面生成时必须遵循：`composed > blocks > ui > 自定义容器样式`。
+
+## 生成流程（必须执行）
+
+1. **先定骨架**：先选 `PageHeader` / `Sidebar` / `TripleSplitPane` 等布局组件。
+2. **再填业务区**：优先选择对应业务 composed 组件（消息、表单、卡片、任务、上传等）。
+3. **最后补交互状态**：每页至少实现 `normal + loading + empty/error` 三类状态。
+4. **补基础原语**：仅当 composed 不满足时，才落到 blocks/ui。
+
+## 还原度要求（对照设计稿）
+
+- 布局层级保持一致（栏位数量、主次关系、滚动容器边界）
+- 文案层级保持一致（标题/正文/辅助文案）
+- 交互入口保持一致（主要按钮、筛选、输入、反馈动作）
+- 不擅自新增视觉风格，不引入新 UI 体系
+
 ## 组件导入路径
 
 ```tsx
@@ -81,3 +97,9 @@ Button, Collapsible, Field, Input, Label, Popover, Resizable, Select, Separator,
 ```tsx
 import { Search, Settings, User, Plus } from "lucide-react";
 ```
+
+## 禁止项
+
+- 禁止引入 `@mui/*`、`antd`、`chakra-ui` 等外部 UI 组件库
+- 禁止用纯 `div + class` 重造按钮、输入框、选择器、弹层等基础组件
+- 禁止用相对路径深层跨目录导入组件（统一使用 `@/` 别名）

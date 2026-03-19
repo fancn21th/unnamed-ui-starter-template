@@ -3,6 +3,55 @@
 本文档提供每个组件的导入方式和关键 Props，供生成页面时查阅。
 如需更详细的 API，直接阅读对应源码文件。
 
+## 使用顺序（建议）
+
+1. 先查 **布局组件**（页面骨架）
+2. 再查 **业务组件**（消息/表单/卡片/任务等）
+3. 最后查 **shadcn 与 blocks**（补细节）
+
+如果你在做「高还原页面」，优先保证布局和交互入口一致，再做视觉细节对齐。
+
+## 场景速查表
+
+| 场景 | 首选组件 |
+|------|----------|
+| 页头 | PageHeader |
+| 三栏布局 | TripleSplitPane |
+| 侧边导航 | Sidebar |
+| 对话输入 | ComposedSender / ResponsiveSender |
+| AI/用户消息 | AIMessage / UserMessage |
+| 消息列表 | MessageList |
+| 欢迎/空态 | Welcome |
+| 提示词 | Prompt |
+| 表单输入 | BlockInput / BlockSelect |
+| 动态表单 | DynamicForm |
+| 文件上传 | Upload |
+| 卡片展示 | FileCard / DocumentCard / AgentCard / TaskCard / ReportCard |
+| 任务列表 | TaskList |
+| 进度展示 | Progress |
+| 状态标签 | StatusTag / Tag |
+| 弹层确认 | ConfirmPanel |
+| Markdown 渲染 | Markdown |
+
+## 导入路径速查
+
+| 组件 | 导入路径 |
+|------|----------|
+| PageHeader | `@/components/wuhan/composed/page-header` |
+| TripleSplitPane | `@/components/wuhan/composed/triple-split-pane` |
+| Sidebar | `@/components/wuhan/composed/sidebar` |
+| ComposedSender | `@/components/wuhan/composed/sender` |
+| AIMessage, UserMessage | `@/components/wuhan/composed/message` |
+| MessageList | `@/components/wuhan/composed/message-list` |
+| BlockButton | `@/components/wuhan/composed/block-button` |
+| BlockInput | `@/components/wuhan/composed/block-input` |
+| BlockSelect | `@/components/wuhan/composed/block-select` |
+| Button | `@/components/ui/button` |
+| Input | `@/components/ui/input` |
+| Tabs | `@/components/ui/tabs` |
+| cn | `@/lib/utils` |
+| 图标 | `lucide-react` |
+
 ---
 
 ## 布局组件
@@ -414,6 +463,19 @@ import { Markdown } from "@/components/wuhan/composed/markdown";
 | Collapsible | `@/components/ui/collapsible` |
 | Resizable | `@/components/ui/resizable` |
 | Field | `@/components/ui/field` |
+
+---
+
+## 关键组件注意点
+
+| 组件 | 注意 |
+|------|------|
+| **ComposedSender** | 必须传 `value` + `onChange` + `onSend`；`generating` 时显示加载态；`submitOnEnter` 可开启回车发送 |
+| **TripleSplitPane** | `left`/`center`/`right` 均需 `children`；`left`/`right` 需 `width`+`minWidth`+`collapsedWidth`；`leftPopover.enabled` 折叠后弹出 |
+| **AIMessage** | `status="generating"` 时用 `generatingContent` 自定义加载；`status="failed"` 时用 `errorMessage` 或 `errorContent` |
+| **PageHeader** | `actions` 可放 `PageHeaderUser`、`PageHeaderButtonGroup`；logo 建议 24–32px |
+| **DynamicForm** | 基于 JSON Schema，需传入 schema 与 onSubmit |
+| **Markdown** | 内部已用 antd Skeleton，页面层勿再引入 antd |
 
 ---
 
